@@ -1,6 +1,8 @@
 const int trigPin = A5;
+const int potentiometerPin = A4;
 const int echoPin = 11;
 const int motor_pin = 10;
+const int waitTime = 7000;
 
 float duration, distance, gate_angle;
 
@@ -34,6 +36,21 @@ void setup() {
 }
 
 void loop() {
+
+  int potentiometerValue = analogRead(potentiometerPin);
+  int potentiometerFlag = 0;
+  
+  while (potentiometerValue <= 950) {
+    if (!potentiometerFlag) {
+      analogWrite(motor_pin, 55);
+      potentiometerFlag = 1;
+      delay(500);
+    }
+    analogWrite(motor_pin, map(potentiometerValue, 0, 1023, 180, 0));
+    delay(50);
+    potentiometerValue = analogRead(potentiometerPin);
+  }
+
   digitalWrite(trigPin, 0);
   delayMicroseconds(2);
   digitalWrite(trigPin, 1);
@@ -48,7 +65,7 @@ void loop() {
 
   if (distance <= 4) {
     analogWrite(motor_pin, 160);
-    delay(5000);
+    delay(waitTime);
   }
   else {
     analogWrite(motor_pin, 55);
@@ -62,7 +79,7 @@ void loop() {
     if (key == '#') {
       if(comapreStrings(userPass, PASSWORD, userIndex)) {
         analogWrite(motor_pin, 160);
-        delay(5000);
+        delay(waitTime);
       }
       userIndex = 0;
     }
