@@ -62,7 +62,7 @@ void loop() {
   delayMicroseconds(10);
   digitalWrite(trigPin, 0);
  
-  duration = pulseIn(echoPin, 1); // duration is the time (in microseconds) that the echo signal remains HIGH on the echoPin
+  duration = pulseIn(echoPin, 1); // duration: The time (in microseconds) that the echo signal remains HIGH on the echoPin
   distance = (duration*.0343)/2; // (343 meters/second) speed of the light in the air, (2) measure the distance for one way
    Serial.print("Distance: ");
    Serial.println(distance);
