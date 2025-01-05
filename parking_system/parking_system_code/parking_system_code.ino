@@ -3,6 +3,8 @@ const int potentiometerPin = A4;
 const int echoPin = 11;
 const int motor_pin = 10;
 const int waitTime = 7000;
+const int close_gate = 230;
+const int open_gate = 110;
 
 float duration, distance, gate_angle;
 
@@ -40,13 +42,13 @@ void loop() {
   int potentiometerValue = analogRead(potentiometerPin);
   int potentiometerFlag = 0;
   
-  while (potentiometerValue <= 950) {
+  while (potentiometerValue <= 1000) {
     if (!potentiometerFlag) {
-      analogWrite(motor_pin, 55);
+      analogWrite(motor_pin, close_gate);
       potentiometerFlag = 1;
       delay(500);
     }
-    analogWrite(motor_pin, map(potentiometerValue, 0, 1023, 180, 0));
+    analogWrite(motor_pin, map(potentiometerValue, 0, 1023, 0, 240));
     delay(50);
     potentiometerValue = analogRead(potentiometerPin);
   }
@@ -59,16 +61,16 @@ void loop() {
  
   duration = pulseIn(echoPin, 1);
   distance = (duration*.0343)/2;
-  // Serial.print("Distance: ");
-  // Serial.println(distance);
+   Serial.print("Distance: ");
+   Serial.println(distance);
   delay(10);
 
   if (distance <= 4) {
-    analogWrite(motor_pin, 160);
+    analogWrite(motor_pin, open_gate);
     delay(waitTime);
   }
   else {
-    analogWrite(motor_pin, 55);
+    analogWrite(motor_pin, close_gate);
   }
 
   char key = keypad.getKey();
@@ -77,8 +79,8 @@ void loop() {
 
   if (key) {
     if (key == '#') {
-      if(comapreStrings(userPass, PASSWORD, userIndex)) {
-        analogWrite(motor_pin, 160);
+      if(userIndex == 4 && comapreStrings(userPass, PASSWORD, 4)) {
+        analogWrite(motor_pin, open_gate);
         delay(waitTime);
       }
       userIndex = 0;
@@ -99,6 +101,10 @@ int comapreStrings(char *str1, char *str2, int length) {
   for (int i = 0; i < length; i++) {
     if (str1[i] != str2[i])
       return 0;
+  }
+
+  for (int i = 0; i < length; i++) {
+    str1[0] = '\0';
   }
   return 1;
 }
