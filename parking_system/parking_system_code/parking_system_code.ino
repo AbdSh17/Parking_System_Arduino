@@ -5,6 +5,9 @@ const int motor_pin = 10;
 const int waitTime = 7000;
 const int close_gate = 230;
 const int open_gate = 110;
+const int distance_to_open = 4;
+char *PASSWORD = "1346";
+const int PASSWORD_LENGTH = 4;
 
 float duration, distance, gate_angle;
 
@@ -29,7 +32,6 @@ Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 char userPass[5];
 int userIndex = 0;
 
-char *PASSWORD = "1346";
 
 void setup() {
   pinMode(trigPin, OUTPUT);
@@ -42,30 +44,31 @@ void loop() {
   int potentiometerValue = analogRead(potentiometerPin);
   int potentiometerFlag = 0;
   
-  while (potentiometerValue <= 1000) {
-    if (!potentiometerFlag) {
+  while (potentiometerValue <= 1000) { // stay forever until the potentiometer is at default
+    if (!potentiometerFlag) { // if it's the first time entering the loop, restart everything
       analogWrite(motor_pin, close_gate);
       potentiometerFlag = 1;
       delay(500);
     }
-    analogWrite(motor_pin, map(potentiometerValue, 0, 1023, 0, 240));
+    analogWrite(motor_pin, map(potentiometerValue, 0, 1023, 0, 240)); // note that 240 is not the max but it's the best value with respect to the angle and speed specifics
     delay(50);
     potentiometerValue = analogRead(potentiometerPin);
   }
 
+  // restart the trigger, then start it again then restart it, (neg_edge, pos_edge, neg_edge)
   digitalWrite(trigPin, 0);
   delayMicroseconds(2);
   digitalWrite(trigPin, 1);
   delayMicroseconds(10);
   digitalWrite(trigPin, 0);
  
-  duration = pulseIn(echoPin, 1);
-  distance = (duration*.0343)/2;
+  duration = pulseIn(echoPin, 1); // duration is the time (in microseconds) that the echo signal remains HIGH on the echoPin
+  distance = (duration*.0343)/2; // (343 meters/second) speed of the light in the air, (2) measure the distance for one way
    Serial.print("Distance: ");
    Serial.println(distance);
   delay(10);
 
-  if (distance <= 4) {
+  if (distance <= distance_to_open) { 
     analogWrite(motor_pin, open_gate);
     delay(waitTime);
   }
@@ -73,19 +76,19 @@ void loop() {
     analogWrite(motor_pin, close_gate);
   }
 
-  char key = keypad.getKey();
+  char key = keypad.getKey(); // get the key the user entered
   if (userIndex == 5)
     userIndex = 0;
 
   if (key) {
-    if (key == '#') {
-      if(userIndex == 4 && comapreStrings(userPass, PASSWORD, 4)) {
+    if (key == '#') { // # is stand for confirm
+      if(userIndex == PASSWORD_LENGTH && comapreStrings(userPass, PASSWORD, PASSWORD_LENGTH)) {
         analogWrite(motor_pin, open_gate);
         delay(waitTime);
       }
       userIndex = 0;
     }
-    else {
+    else { // if not confirmed yet
       userPass[userIndex] = key;
       Serial.print("KEY: ");
       Serial.println(userPass[userIndex]);
@@ -104,7 +107,7 @@ int comapreStrings(char *str1, char *str2, int length) {
   }
 
   for (int i = 0; i < length; i++) {
-    str1[0] = '\0';
+    str1[0] = '\0'; // restart the string each time
   }
   return 1;
 }
