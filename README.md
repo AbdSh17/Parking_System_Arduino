@@ -4,7 +4,7 @@ a repo that contain parking system using arduino uno and multiple component.
 ## Table of Contents
 - [What's in the repo ?](#What's-in-the-repo-?)
 - [Components](#Components)
-- (Contributors)(#Contributors)
+- [Contributors](#Contributors).
 
 ## What's-in-the-repo-?
 - system code
